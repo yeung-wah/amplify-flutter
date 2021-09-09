@@ -29,6 +29,7 @@ public class SwiftAmplifyDataStorePlugin: NSObject, FlutterPlugin {
     private let dataStoreHubEventStreamHandler: DataStoreHubEventStreamHandler?
     private var channel: FlutterMethodChannel?
     var observeSubscription: AnyCancellable?
+    var observeQuerySubscription: AnyCancellable?
     
     init(bridge: DataStoreBridge = DataStoreBridge(),
          flutterModelRegistration: FlutterModels = FlutterModels(),
@@ -79,6 +80,8 @@ public class SwiftAmplifyDataStorePlugin: NSObject, FlutterPlugin {
             onStart(flutterResult: result)
         case "stop":
             onStop(flutterResult: result)
+        case "observeQuery":
+            onObserveQuery(args: arguments, flutterResult: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -398,6 +401,43 @@ public class SwiftAmplifyDataStorePlugin: NSObject, FlutterPlugin {
             FlutterDataStoreErrorHandler.handleDataStoreError(error: DataStoreError(error: error),
                                                               flutterResult: flutterResult)
         }
+    }
+    
+    func onObserveQuery(args: [String: Any], flutterResult: @escaping FlutterResult) {
+        return flutterResult(nil)
+//        do {
+//            observeQuerySubscription = try observeQuerySubscription ?? bridge.onObserveQuery().sink { completion in
+//                switch completion {
+//                case .failure(let error):
+//                    let flutterError = FlutterError(code: "DataStoreException",
+//                                                    message: ErrorMessages.defaultFallbackErrorMessage,
+//                                                    details: FlutterDataStoreErrorHandler.createSerializedError(error: error))
+//                    self.dataStoreObserveEventStreamHandler?.sendError(flutterError: flutterError)
+//                case .finished:
+//                    print("finished")
+//                }
+//
+//            } receiveValue: { (mutationEvent) in
+//                do {
+//                    let serializedEvent = try mutationEvent.decodeModel(as: FlutterSerializedModel.self)
+//                    guard let eventType = EventType(rawValue: mutationEvent.mutationType) else {
+//                        print("Received mutation event for an unknown mutation type \(mutationEvent.mutationType).")
+//                        return
+//                    }
+//                    let flutterSubscriptionEvent = FlutterSubscriptionEvent.init(
+//                        item: serializedEvent,
+//                        eventType: eventType)
+//                    self.dataStoreObserveEventStreamHandler?.sendEvent(flutterEvent: try flutterSubscriptionEvent.toJSON(flutterModelRegistration: self.flutterModelRegistration, modelName: mutationEvent.modelName))
+//                } catch {
+//                    print("Failed to parse the event \(error)")
+//                    // TODO communicate using datastore error handler?
+//                }
+//            }
+//        } catch {
+//            print("Failed to get the datastore plugin \(error)")
+//            flutterResult(false)
+//        }
+//        flutterResult(nil)
     }
     
     private func checkArguments(args: Any) throws -> [String: Any] {

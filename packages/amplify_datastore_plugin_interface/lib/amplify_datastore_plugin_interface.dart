@@ -128,4 +128,9 @@ abstract class DataStorePluginInterface extends AmplifyPluginInterface {
   Future<void> stop() {
     throw UnimplementedError('stop() has not been implemented.');
   }
+
+  Future<List<T>> observeQuery<T extends Model>(ModelType<T> modelType,
+      {QueryPredicate? where, List<QuerySortBy>? sortBy}) {
+    throw UnimplementedError('observeQuery() has not been implemented.');
+  }
 }

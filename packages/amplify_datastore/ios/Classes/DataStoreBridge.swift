@@ -74,4 +74,14 @@ public class DataStoreBridge {
     func onStop(completion: @escaping DataStoreCallback<Void>) throws {
         try getPlugin().stop(completion: completion)
     }
+    
+    func onObserve<M: Model>(_ modelType: M.Type,
+                   modelSchema: ModelSchema,
+                   where predicate: QueryPredicate? = nil,
+                   sort sortInput: [QuerySortDescriptor]? = nil) throws -> AnyPublisher<DataStoreQuerySnapshot<M>, DataStoreError> {
+        return try getPlugin().observeQuery(for: modelType,
+                                            modelSchema: modelSchema,
+                                            where: predicate,
+                                            sort: sortInput)
+    }
 }

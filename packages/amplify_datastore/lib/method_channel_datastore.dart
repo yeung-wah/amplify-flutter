@@ -200,6 +200,36 @@ class AmplifyDataStoreMethodChannel extends AmplifyDataStore {
     }
   }
 
+  @override
+  Future<List<T>> observeQuery<T extends Model>(ModelType<T> modelType,
+      {QueryPredicate? where, List<QuerySortBy>? sortBy}) async {
+    try {
+      final List<Map<dynamic, dynamic>>? serializedResults =
+          await (_channel.invokeListMethod('query', <String, dynamic>{
+        'modelName': modelType.modelName(),
+        'queryPredicate': where?.serializeAsMap(),
+        'querySort': sortBy?.map((element) => element.serializeAsMap()).toList()
+      }));
+      if (serializedResults == null)
+        throw AmplifyException(
+            AmplifyExceptionMessages.nullReturnedFromMethodChannel);
+      return serializedResults
+          .map((serializedResult) => modelType.fromJson(
+              new Map<String, dynamic>.from(
+                  serializedResult["serializedData"])))
+          .toList();
+    } on PlatformException catch (e) {
+      throw _deserializeException(e);
+    } on TypeError catch (e) {
+      throw DataStoreException(
+          "An unrecognized exception has happened while Serialization/de-serialization." +
+              " Please see underlyingException for more details.",
+          recoverySuggestion:
+              AmplifyExceptionMessages.missingRecoverySuggestion,
+          underlyingException: e.toString());
+    }
+  }
+
   String _getModelNameFromEvent(Map<dynamic, dynamic> serializedEvent) {
     Map<String, dynamic> serializedItem =
         Map<String, dynamic>.from(serializedEvent["item"]);

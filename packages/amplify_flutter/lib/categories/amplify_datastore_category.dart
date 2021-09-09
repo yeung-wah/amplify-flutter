@@ -121,4 +121,12 @@ class DataStoreCategory {
         ? plugins[0].stop()
         : throw _pluginNotAddedException("DataStore");
   }
+
+  /// TODO: Document
+  Future<List<T>> observeQuery<T extends Model>(ModelType<T> modelType,
+      {QueryPredicate? where, List<QuerySortBy>? sortBy}) {
+    return plugins.length == 1
+        ? plugins[0].observeQuery(modelType, where: where, sortBy: sortBy)
+        : throw _pluginNotAddedException("DataStore");
+  }
 }
