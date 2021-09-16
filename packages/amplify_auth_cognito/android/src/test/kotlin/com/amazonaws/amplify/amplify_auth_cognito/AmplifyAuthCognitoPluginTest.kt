@@ -93,7 +93,6 @@ class AmplifyAuthCognitoPluginTest {
     )
     private var mockAuth = mock(AuthCategory::class.java)
 
-
     @Before
     fun setup() {
         plugin = AuthCognito(AuthCognitoHubEventStreamHandler(), mock(Activity::class.java))
@@ -612,11 +611,11 @@ class AmplifyAuthCognitoPluginTest {
             plugin.prepareUpdatePasswordResult(mockResult)
             null as Void?
         }.`when`(mockAuth).confirmResetPassword(
-                anyString(),
-                anyString(),
-                any(),
-                ArgumentMatchers.any<Action>(),
-                ArgumentMatchers.any<Consumer<AuthException>>()
+            anyString(),
+            anyString(),
+            any(),
+            ArgumentMatchers.any<Action>(),
+            ArgumentMatchers.any<Consumer<AuthException>>()
         )
 
         val data: HashMap<*, *> = hashMapOf(
@@ -641,25 +640,25 @@ class AmplifyAuthCognitoPluginTest {
             plugin.prepareUpdatePasswordResult(mockResult)
             null as Void?
         }.`when`(mockAuth).confirmResetPassword(
-                anyString(),
-                anyString(),
-                ArgumentMatchers.any<AWSCognitoAuthConfirmResetPasswordOptions>(),
-                ArgumentMatchers.any<Action>(),
-                ArgumentMatchers.any<Consumer<AuthException>>()
+            anyString(),
+            anyString(),
+            ArgumentMatchers.any<AWSCognitoAuthConfirmResetPasswordOptions>(),
+            ArgumentMatchers.any<Action>(),
+            ArgumentMatchers.any<Consumer<AuthException>>()
         )
 
         val clientMetadata = hashMapOf("attribute" to "value")
         val options = hashMapOf(
-                "clientMetadata" to clientMetadata
+            "clientMetadata" to clientMetadata
         )
         val username = "testUser"
         val newPassword = "newPassword"
         val confirmationCode = "confirmationCode"
         val data: HashMap<*, *> = hashMapOf(
-                "username" to username,
-                "newPassword" to newPassword,
-                "confirmationCode" to "confirmationCode",
-                "options" to options
+            "username" to username,
+            "newPassword" to newPassword,
+            "confirmationCode" to "confirmationCode",
+            "options" to options
         )
         val arguments: HashMap<String, Any> = hashMapOf("data" to data)
         val call = MethodCall("confirmResetPassword", arguments)
@@ -671,16 +670,16 @@ class AmplifyAuthCognitoPluginTest {
         verify(mockResult, times(1)).success(ArgumentMatchers.any<LinkedTreeMap<String, Any>>());
 
         val expectedOptions = AWSCognitoAuthConfirmResetPasswordOptions
-                .builder()
-                .metadata(clientMetadata)
-                .build()
+            .builder()
+            .metadata(clientMetadata)
+            .build()
 
         verify(mockAuth).confirmResetPassword(
-                ArgumentMatchers.eq(newPassword),
-                ArgumentMatchers.eq(confirmationCode),
-                ArgumentMatchers.eq(expectedOptions),
-                ArgumentMatchers.any<Action>(),
-                ArgumentMatchers.any<Consumer<AuthException>>()
+            ArgumentMatchers.eq(newPassword),
+            ArgumentMatchers.eq(confirmationCode),
+            ArgumentMatchers.eq(expectedOptions),
+            ArgumentMatchers.any<Action>(),
+            ArgumentMatchers.any<Consumer<AuthException>>()
         )
     }
 

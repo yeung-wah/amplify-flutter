@@ -387,7 +387,7 @@ public class AuthCognito : FlutterPlugin, ActivityAware, MethodCallHandler, Plug
 
   private fun onGetCurrentUser(@NonNull flutterResult: Result) {
     try {
-      /* 
+      /*
         Because Android does not preserve the user after session expiration but iOS does so,
         we need to use the mobileclient to get the old username to enforce platform parity.
       */
