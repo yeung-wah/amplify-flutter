@@ -330,11 +330,11 @@ class SignInForm extends AuthenticatorForm<SignInForm> {
 /// {@endtemplate}
 class ConfirmSignUpForm extends AuthenticatorForm<ConfirmSignUpForm> {
   /// {@macro authenticator.confirm_sign_up_form}
-  const ConfirmSignUpForm({
+  ConfirmSignUpForm({
     Key? key,
   }) : this.custom(
           key: key,
-          fields: const [
+          fields: [
             ConfirmSignUpFormField.username(),
             ConfirmSignUpFormField.verificationCode(),
           ],

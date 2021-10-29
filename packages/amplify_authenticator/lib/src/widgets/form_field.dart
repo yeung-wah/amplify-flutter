@@ -61,7 +61,7 @@ abstract class AuthenticatorFormField<FieldType, FieldValue,
     this.hintTextKey,
     this.title,
     this.hintText,
-    FormFieldValidator<String>? validator,
+    FormFieldValidator<FieldValue>? validator,
   })  : assert(
           titleKey != null || title != null,
           'Either title or titleKey must be provided',
@@ -85,7 +85,7 @@ abstract class AuthenticatorFormField<FieldType, FieldValue,
   final FieldType field;
 
   /// Override of default validator.
-  final FormFieldValidator<String>? _validatorOverride;
+  final FormFieldValidator<FieldValue>? _validatorOverride;
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -152,7 +152,7 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
   ValueChanged<FieldValue> get onChanged => (_) {};
 
   /// Validates inputs of this form field.
-  FormFieldValidator<String>? get validator => null;
+  FormFieldValidator<FieldValue>? get validator => null;
 
   /// Whether to hide input.
   bool get obscureText => false;
@@ -175,7 +175,7 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
   /// Maximum number of lines to use for error text.
   int get errorMaxLines => 1;
 
-  Widget buildForm(BuildContext context);
+  Widget buildFormField(BuildContext context);
 
   @override
   @nonVirtual
@@ -191,7 +191,7 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
         children: <Widget>[
           Text(title),
           const Padding(padding: FormFieldConstants.gap),
-          buildForm(context),
+          buildFormField(context),
           if (companionWidget != null) companionWidget!,
         ],
       ),
@@ -203,7 +203,7 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
     super.debugFillProperties(properties);
     properties.add(ObjectFlagProperty<ValueChanged<FieldValue>>.has(
         'callback', onChanged));
-    properties.add(ObjectFlagProperty<FormFieldValidator<String>?>.has(
+    properties.add(ObjectFlagProperty<FormFieldValidator<FieldValue>?>.has(
         'validator', validator));
     properties.add(StringProperty('initialValue', initialValue));
     properties.add(DiagnosticsProperty<bool>('obscureText', obscureText));
@@ -218,37 +218,11 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
   }
 }
 
-class AuthenticatorTextField<FieldType,
-        T extends AuthenticatorTextField<FieldType, T>>
-    extends AuthenticatorFormField<FieldType, String, T> {
-  const AuthenticatorTextField({
-    Key? key,
-    required FieldType field,
-    InputResolverKey? titleKey,
-    InputResolverKey? hintTextKey,
-    String? title,
-    String? hintText,
-    FormFieldValidator<String>? validator,
-  }) : super._(
-          key: key,
-          field: field,
-          titleKey: titleKey,
-          hintTextKey: hintTextKey,
-          title: title,
-          hintText: hintText,
-          validator: validator,
-        );
-
+mixin AuthenticatorTextField<FieldType,
+        T extends AuthenticatorFormField<FieldType, String, T>>
+    on _AuthenticatorFormFieldState<FieldType, String, T> {
   @override
-  _AuthenticatorTextFieldState<FieldType, T> createState() =>
-      _AuthenticatorTextFieldState();
-}
-
-class _AuthenticatorTextFieldState<FieldType,
-        T extends AuthenticatorTextField<FieldType, T>>
-    extends _AuthenticatorFormFieldState<FieldType, String, T> {
-  @override
-  Widget buildForm(BuildContext context) {
+  Widget buildFormField(BuildContext context) {
     final inputResolver = stringResolver.inputs;
     final hintText = widget.hintText == null
         ? inputResolver.resolve(context, widget.hintTextKey!)

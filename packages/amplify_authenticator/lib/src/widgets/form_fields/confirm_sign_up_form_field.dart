@@ -18,12 +18,98 @@ part of authenticator.form_field;
 /// {@template authenticator.confirm_sign_up_form_field}
 /// A form field component on the Confirm Sign Up screen.
 /// {@endtemplate}
-class ConfirmSignUpFormField
-    extends AuthenticatorFormField<ConfirmSignUpField, ConfirmSignUpFormField> {
+abstract class ConfirmSignUpFormField<FieldValue>
+    extends AuthenticatorFormField<ConfirmSignUpField, FieldValue,
+        ConfirmSignUpFormField<FieldValue>> {
   /// {@macro authenticator.confirm_sign_up_form_field}
   ///
   /// Either [titleKey] or [title] is required.
   const ConfirmSignUpFormField._({
+    Key? key,
+    required ConfirmSignUpField field,
+    InputResolverKey? titleKey,
+    InputResolverKey? hintTextKey,
+    String? title,
+    String? hintText,
+    FormFieldValidator<FieldValue>? validator,
+  }) : super._(
+          key: key,
+          field: field,
+          titleKey: titleKey,
+          hintTextKey: hintTextKey,
+          title: title,
+          hintText: hintText,
+          validator: validator,
+        );
+
+  /// Creates a username component.
+  static ConfirmSignUpFormField username({
+    Key? key,
+    FormFieldValidator<String>? validator,
+  }) =>
+      _ConfirmSignUpTextField(
+        key: key,
+        titleKey: InputResolverKey.usernameTitle,
+        hintTextKey: InputResolverKey.usernameHint,
+        field: ConfirmSignUpField.username,
+        validator: validator,
+      );
+
+  /// Creates a password component.
+  static ConfirmSignUpFormField password({
+    Key? key,
+    FormFieldValidator<String>? validator,
+  }) =>
+      _ConfirmSignUpTextField(
+        key: key ?? keyPasswordConfirmSignUpFormfield,
+        titleKey: InputResolverKey.passwordTitle,
+        hintTextKey: InputResolverKey.passwordHint,
+        field: ConfirmSignUpField.password,
+        validator: validator,
+      );
+
+  /// Creates an email component.
+  static ConfirmSignUpFormField email({
+    Key? key,
+    FormFieldValidator<String>? validator,
+  }) =>
+      _ConfirmSignUpTextField(
+        key: key ?? keyEmailConfirmSignUpFormfield,
+        titleKey: InputResolverKey.emailTitle,
+        hintTextKey: InputResolverKey.emailHint,
+        field: ConfirmSignUpField.email,
+        validator: validator,
+      );
+
+  /// Creates a phoneNumber component.
+  static ConfirmSignUpFormField phoneNumber({
+    Key? key,
+    FormFieldValidator<String>? validator,
+  }) =>
+      _ConfirmSignUpTextField(
+        key: key ?? keyPhoneNumberConfirmSignUpFormfield,
+        titleKey: InputResolverKey.phoneNumberTitle,
+        hintTextKey: InputResolverKey.phoneNumberHint,
+        field: ConfirmSignUpField.phoneNumber,
+        validator: validator,
+      );
+
+  /// Creates a verificationCode component.
+  static ConfirmSignUpFormField verificationCode({
+    Key? key,
+    FormFieldValidator<String>? validator,
+  }) =>
+      _ConfirmSignUpTextField(
+        key: key ?? keyCodeConfirmSignUpFormfield,
+        titleKey: InputResolverKey.verificationCodeTitle,
+        hintTextKey: InputResolverKey.verificationCodeHint,
+        field: ConfirmSignUpField.code,
+        validator: validator,
+      );
+}
+
+class _ConfirmSignUpTextField extends ConfirmSignUpFormField<String> {
+  const _ConfirmSignUpTextField({
     Key? key,
     required ConfirmSignUpField field,
     InputResolverKey? titleKey,
@@ -41,88 +127,12 @@ class ConfirmSignUpFormField
           validator: validator,
         );
 
-  /// Creates a username component.
-  const ConfirmSignUpFormField.username({
-    Key? key,
-    FormFieldValidator<String>? validator,
-  }) : this._(
-          key: key,
-          titleKey: InputResolverKey.usernameTitle,
-          hintTextKey: InputResolverKey.usernameHint,
-          field: ConfirmSignUpField.username,
-          validator: validator,
-        );
-
-  /// Creates a password component.
-  const ConfirmSignUpFormField.password({
-    Key? key,
-    FormFieldValidator<String>? validator,
-  }) : this._(
-          key: key ?? keyPasswordConfirmSignUpFormfield,
-          titleKey: InputResolverKey.passwordTitle,
-          hintTextKey: InputResolverKey.passwordHint,
-          field: ConfirmSignUpField.password,
-          validator: validator,
-        );
-
-  /// Creates an email component.
-  const ConfirmSignUpFormField.email({
-    Key? key,
-    FormFieldValidator<String>? validator,
-  }) : this._(
-          key: key ?? keyEmailConfirmSignUpFormfield,
-          titleKey: InputResolverKey.emailTitle,
-          hintTextKey: InputResolverKey.emailHint,
-          field: ConfirmSignUpField.email,
-          validator: validator,
-        );
-
-  /// Creates a phoneNumber component.
-  const ConfirmSignUpFormField.phoneNumber({
-    Key? key,
-    FormFieldValidator<String>? validator,
-  }) : this._(
-          key: key ?? keyPhoneNumberConfirmSignUpFormfield,
-          titleKey: InputResolverKey.phoneNumberTitle,
-          hintTextKey: InputResolverKey.phoneNumberHint,
-          field: ConfirmSignUpField.phoneNumber,
-          validator: validator,
-        );
-
-  /// Creates a verificationCode component.
-  const ConfirmSignUpFormField.verificationCode({
-    Key? key,
-    FormFieldValidator<String>? validator,
-  }) : this._(
-          key: key ?? keyCodeConfirmSignUpFormfield,
-          titleKey: InputResolverKey.verificationCodeTitle,
-          hintTextKey: InputResolverKey.verificationCodeHint,
-          field: ConfirmSignUpField.code,
-          validator: validator,
-        );
-
   @override
-  _ConfirmSignUpFormFieldState createState() => _ConfirmSignUpFormFieldState();
+  _ConfirmSignUpTextFieldState createState() => _ConfirmSignUpTextFieldState();
 }
 
-class _ConfirmSignUpFormFieldState extends _AuthenticatorFormFieldState<
-    ConfirmSignUpField, ConfirmSignUpFormField> {
-  @override
-  String? get initialValue {
-    switch (widget.field) {
-      case ConfirmSignUpField.username:
-        return viewModel.username;
-      case ConfirmSignUpField.phoneNumber:
-        return viewModel.getAttribute(CognitoUserAttributes.phoneNumber);
-      case ConfirmSignUpField.email:
-        return viewModel.getAttribute(CognitoUserAttributes.email);
-      case ConfirmSignUpField.password:
-        return viewModel.password;
-      case ConfirmSignUpField.code:
-        return viewModel.confirmationCode;
-    }
-  }
-
+class _ConfirmSignUpTextFieldState extends _ConfirmSignUpFormFieldState<String>
+    with AuthenticatorTextField {
   @override
   FormFieldValidator<String>? get validator {
     switch (widget.field) {
@@ -148,6 +158,26 @@ class _ConfirmSignUpFormFieldState extends _AuthenticatorFormFieldState<
         return validateCode;
     }
   }
+}
+
+abstract class _ConfirmSignUpFormFieldState<FieldValue>
+    extends _AuthenticatorFormFieldState<ConfirmSignUpField, FieldValue,
+        ConfirmSignUpFormField<FieldValue>> {
+  @override
+  String? get initialValue {
+    switch (widget.field) {
+      case ConfirmSignUpField.username:
+        return viewModel.username;
+      case ConfirmSignUpField.phoneNumber:
+        return viewModel.getAttribute(CognitoUserAttributes.phoneNumber);
+      case ConfirmSignUpField.email:
+        return viewModel.getAttribute(CognitoUserAttributes.email);
+      case ConfirmSignUpField.password:
+        return viewModel.password;
+      case ConfirmSignUpField.code:
+        return viewModel.confirmationCode;
+    }
+  }
 
   @override
   bool get obscureText {
@@ -156,22 +186,6 @@ class _ConfirmSignUpFormFieldState extends _AuthenticatorFormFieldState<
         return true;
       default:
         return false;
-    }
-  }
-
-  @override
-  ValueChanged<String> get onChanged {
-    switch (widget.field) {
-      case ConfirmSignUpField.username:
-        return usernameOnChangedForAlias;
-      case ConfirmSignUpField.password:
-        return viewModel.setPassword;
-      case ConfirmSignUpField.email:
-        return viewModel.setEmail;
-      case ConfirmSignUpField.phoneNumber:
-        return viewModel.setPhoneNumber;
-      case ConfirmSignUpField.code:
-        return viewModel.setConfirmationCode;
     }
   }
 
