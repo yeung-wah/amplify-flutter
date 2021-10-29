@@ -218,8 +218,8 @@ abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
   }
 }
 
-class AuthenticatorTextField<FieldType, String,
-        T extends AuthenticatorFormField<FieldType, String, T>>
+class AuthenticatorTextField<FieldType,
+        T extends AuthenticatorTextField<FieldType, T>>
     extends AuthenticatorFormField<FieldType, String, T> {
   const AuthenticatorTextField({
     Key? key,
@@ -245,7 +245,7 @@ class AuthenticatorTextField<FieldType, String,
 }
 
 class _AuthenticatorTextFieldState<FieldType,
-        T extends AuthenticatorTextField<FieldType, String, T>>
+        T extends AuthenticatorTextField<FieldType, T>>
     extends _AuthenticatorFormFieldState<FieldType, String, T> {
   @override
   Widget buildForm(BuildContext context) {
