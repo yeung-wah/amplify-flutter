@@ -18,8 +18,8 @@ part of authenticator.form_field;
 /// {@template authenticator.confirm_sign_in_form_field}
 /// A form field component on the Confirm Sign In screens.
 /// {@endtemplate}
-class ConfirmSignInFormField
-    extends AuthenticatorFormField<ConfirmSignInField, ConfirmSignInFormField> {
+class ConfirmSignInFormField extends AuthenticatorFormField<ConfirmSignInField,
+    String, ConfirmSignInFormField> {
   /// {@macro authenticator.confirm_sign_in_form_field}
   ///
   /// Either [titleKey] or [title] is required.
@@ -93,7 +93,7 @@ class ConfirmSignInFormField
 }
 
 class _ConfirmSignInFormFieldState extends _AuthenticatorFormFieldState<
-    ConfirmSignInField, ConfirmSignInFormField> {
+    ConfirmSignInField, String, ConfirmSignInFormField> {
   @override
   String? get initialValue {
     switch (widget.field) {

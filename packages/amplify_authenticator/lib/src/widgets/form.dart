@@ -260,7 +260,7 @@ class SignInForm extends AuthenticatorForm<SignInForm> {
   /// A custom Sign In form.
   const SignInForm.custom({
     Key? key,
-    required List<SignInFormField> fields,
+    required List<AuthenticatorFormField> fields,
     this.includeDefaultSocialProviders = true,
   }) : super._(
           key: key,
@@ -559,7 +559,7 @@ class _VerifyUserFormState extends AuthenticatorFormState<VerifyUserForm> {
       unverifiedAttributeKeys.isNotEmpty,
       'Attribute keys cannot be empty',
     );
-    return VerifyUserFormFieldGroup<String>(
+    return VerifyUserFormFieldGroup(
       groupValue: ValueNotifier(unverifiedAttributeKeys.first),
       child: super.build(context),
     );

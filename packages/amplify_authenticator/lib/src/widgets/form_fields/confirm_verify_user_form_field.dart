@@ -16,7 +16,7 @@
 part of authenticator.form_field;
 
 class ConfirmVerifyUserFormField
-    extends AuthenticatorFormField<void, ConfirmVerifyUserFormField> {
+    extends AuthenticatorFormField<void, String, ConfirmVerifyUserFormField> {
   const ConfirmVerifyUserFormField({
     Key? key,
   }) : super._(
@@ -31,8 +31,8 @@ class ConfirmVerifyUserFormField
       _ConfirmVerifyUserFormFieldState();
 }
 
-class _ConfirmVerifyUserFormFieldState
-    extends _AuthenticatorFormFieldState<void, ConfirmVerifyUserFormField> {
+class _ConfirmVerifyUserFormFieldState extends _AuthenticatorFormFieldState<
+    void, String, ConfirmVerifyUserFormField> {
   @override
   String? get initialValue => viewModel.confirmationCode;
 

@@ -20,12 +20,12 @@ part of authenticator.form_field;
 ///
 /// Must be a descendant of a [VerifyUserFormFieldGroup] widget.
 /// {@endtemplate}
-class VerifyUserFormField
-    extends AuthenticatorFormField<String, VerifyUserFormField> {
+class VerifyUserFormField<T>
+    extends AuthenticatorFormField<T, T?, VerifyUserFormField<T>> {
   /// {@macro authenticator.verify_user_form_field}
   const VerifyUserFormField({
     Key? key,
-    required String attributeKey,
+    required T attributeKey,
     // InputResolverKey? labelKey, TODO
     String? label,
   }) : super._(
@@ -36,24 +36,30 @@ class VerifyUserFormField
         );
 
   @override
-  _VerifyUserFormFieldState createState() => _VerifyUserFormFieldState();
+  _VerifyUserFormFieldState<T> createState() => _VerifyUserFormFieldState();
 }
 
-class _VerifyUserFormFieldState
-    extends _AuthenticatorFormFieldState<String, VerifyUserFormField> {
+class _VerifyUserFormFieldState<T>
+    extends _AuthenticatorFormFieldState<T, T?, VerifyUserFormField<T>> {
+  ValueNotifier<T> get _groupValue => VerifyUserFormFieldGroup.of<T>(context);
+
+  @override
+  ValueChanged<T?> get onChanged {
+    return (T? value) {
+      if (value != null) {
+        _groupValue.value = value;
+      }
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    final groupValue = VerifyUserFormFieldGroup.of<String>(context);
     return ListTile(
       title: Text(widget.title!),
-      leading: Radio<String>(
+      leading: Radio<T>(
         value: widget.field,
-        groupValue: groupValue.value,
-        onChanged: (String? value) {
-          if (value != null) {
-            groupValue.value = value;
-          }
-        },
+        groupValue: _groupValue.value,
+        onChanged: onChanged,
       ),
     );
   }

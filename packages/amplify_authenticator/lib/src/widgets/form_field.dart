@@ -50,8 +50,8 @@ part 'form_fields/confirm_verify_user_form_field.dart';
 /// - [VerifyUserFormField]
 /// - [ConfirmVerifyUserFormField]
 /// {@endtemplate}
-abstract class AuthenticatorFormField<FieldType,
-        T extends AuthenticatorFormField<FieldType, T>>
+abstract class AuthenticatorFormField<FieldType, FieldValue,
+        T extends AuthenticatorFormField<FieldType, FieldValue, T>>
     extends AuthenticatorComponent<T> {
   /// {@macro authenticator.authenticator_form_field}
   const AuthenticatorFormField._({
@@ -98,8 +98,8 @@ abstract class AuthenticatorFormField<FieldType,
   }
 }
 
-abstract class _AuthenticatorFormFieldState<FieldType,
-        T extends AuthenticatorFormField<FieldType, T>>
+abstract class _AuthenticatorFormFieldState<FieldType, FieldValue,
+        T extends AuthenticatorFormField<FieldType, FieldValue, T>>
     extends AuthenticatorComponentState<T> {
   @nonVirtual
   Widget get visibilityToggle => context
@@ -149,7 +149,7 @@ abstract class _AuthenticatorFormFieldState<FieldType,
   }
 
   /// Callback for when `onChanged` is triggered on the [FormField].
-  ValueChanged<String> get onChanged => (_) {};
+  ValueChanged<FieldValue> get onChanged => (_) {};
 
   /// Validates inputs of this form field.
   FormFieldValidator<String>? get validator => null;
@@ -175,12 +175,12 @@ abstract class _AuthenticatorFormFieldState<FieldType,
   /// Maximum number of lines to use for error text.
   int get errorMaxLines => 1;
 
+  Widget buildForm(BuildContext context);
+
   @override
+  @nonVirtual
   Widget build(BuildContext context) {
     final inputResolver = stringResolver.inputs;
-    final hintText = widget.hintText == null
-        ? inputResolver.resolve(context, widget.hintTextKey!)
-        : widget.hintText!;
     final title = widget.title == null
         ? inputResolver.resolve(context, widget.titleKey!)
         : widget.title!;
@@ -191,38 +191,7 @@ abstract class _AuthenticatorFormFieldState<FieldType,
         children: <Widget>[
           Text(title),
           const Padding(padding: FormFieldConstants.gap),
-          ValueListenableBuilder<bool>(
-            valueListenable: context
-                .findAncestorStateOfType<AuthenticatorFormState>()!
-                .obscureTextToggleValue,
-            builder: (BuildContext context, bool toggleObscureText, Widget? _) {
-              var obscureText = this.obscureText && toggleObscureText;
-              return TextFormField(
-                style: enabled
-                    ? null
-                    : const TextStyle(
-                        color: AmplifyColors.black20,
-                      ),
-                initialValue: initialValue,
-                enabled: enabled,
-                validator: widget._validatorOverride ?? validator,
-                onChanged: onChanged,
-                decoration: InputDecoration(
-                  suffixIcon: suffixIcon,
-                  errorMaxLines: errorMaxLines,
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  hintText: hintText,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: keyboardType,
-                obscureText: obscureText,
-              );
-            },
-          ),
+          buildForm(context),
           if (companionWidget != null) companionWidget!,
         ],
       ),
@@ -232,8 +201,8 @@ abstract class _AuthenticatorFormFieldState<FieldType,
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(
-        ObjectFlagProperty<ValueChanged<String>>.has('callback', onChanged));
+    properties.add(ObjectFlagProperty<ValueChanged<FieldValue>>.has(
+        'callback', onChanged));
     properties.add(ObjectFlagProperty<FormFieldValidator<String>?>.has(
         'validator', validator));
     properties.add(StringProperty('initialValue', initialValue));
@@ -246,5 +215,75 @@ abstract class _AuthenticatorFormFieldState<FieldType,
         'keyboardTypeForAlias', usernameKeyboardTypeForAlias));
     properties.add(ObjectFlagProperty<ValueChanged<String>>.has(
         'usernameOnChangedForAlias', usernameOnChangedForAlias));
+  }
+}
+
+class AuthenticatorTextField<FieldType, String,
+        T extends AuthenticatorFormField<FieldType, String, T>>
+    extends AuthenticatorFormField<FieldType, String, T> {
+  const AuthenticatorTextField({
+    Key? key,
+    required FieldType field,
+    InputResolverKey? titleKey,
+    InputResolverKey? hintTextKey,
+    String? title,
+    String? hintText,
+    FormFieldValidator<String>? validator,
+  }) : super._(
+          key: key,
+          field: field,
+          titleKey: titleKey,
+          hintTextKey: hintTextKey,
+          title: title,
+          hintText: hintText,
+          validator: validator,
+        );
+
+  @override
+  _AuthenticatorTextFieldState<FieldType, T> createState() =>
+      _AuthenticatorTextFieldState();
+}
+
+class _AuthenticatorTextFieldState<FieldType,
+        T extends AuthenticatorTextField<FieldType, String, T>>
+    extends _AuthenticatorFormFieldState<FieldType, String, T> {
+  @override
+  Widget buildForm(BuildContext context) {
+    final inputResolver = stringResolver.inputs;
+    final hintText = widget.hintText == null
+        ? inputResolver.resolve(context, widget.hintTextKey!)
+        : widget.hintText!;
+    return ValueListenableBuilder<bool>(
+      valueListenable: context
+          .findAncestorStateOfType<AuthenticatorFormState>()!
+          .obscureTextToggleValue,
+      builder: (BuildContext context, bool toggleObscureText, Widget? _) {
+        var obscureText = this.obscureText && toggleObscureText;
+        return TextFormField(
+          style: enabled
+              ? null
+              : const TextStyle(
+                  color: AmplifyColors.black20,
+                ),
+          initialValue: initialValue,
+          enabled: enabled,
+          validator: widget._validatorOverride ?? validator,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            suffixIcon: suffixIcon,
+            errorMaxLines: errorMaxLines,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+          ),
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+        );
+      },
+    );
   }
 }

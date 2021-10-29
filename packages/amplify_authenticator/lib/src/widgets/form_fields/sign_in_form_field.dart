@@ -19,7 +19,7 @@ part of authenticator.form_field;
 /// A form field component on the Sign In screen.
 /// {@endtemplate}
 class SignInFormField
-    extends AuthenticatorFormField<SignInField, SignInFormField> {
+    extends AuthenticatorFormField<SignInField, String, SignInFormField> {
   /// {@macro authenticator.sign_in_form_field}
   ///
   /// Either [titleKey] or [title] is required.
@@ -49,7 +49,7 @@ class SignInFormField
           key: key ?? keyUsernameSignInFormField,
           titleKey: InputResolverKey.usernameTitle,
           hintTextKey: InputResolverKey.usernameHint,
-          field: SignInField.username,
+          field: SignInFieldType.username,
           validator: validator,
         );
 
@@ -142,7 +142,7 @@ class SignInFormField
 }
 
 class _SignInFormFieldState
-    extends _AuthenticatorFormFieldState<SignInField, SignInFormField> {
+    extends _AuthenticatorFormFieldState<SignInField, String, SignInFormField> {
   @override
   String? get initialValue {
     switch (widget.field) {
