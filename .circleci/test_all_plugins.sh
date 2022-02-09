@@ -31,6 +31,13 @@ for plugin_dir in */; do
             ;;
         android-test)
             echo "=== Running Android unit tests for $plugin ==="
+
+            ANDROID_PLUGIN_DIR=$(find . -type d -regex "./.*_[a-z]*_.*_android")
+
+            if [ -d "$ANDROID_PLUGIN_DIR" ]; then
+                cd $ANDROID_PLUGIN_DIR
+            fi
+
             if [ -d "android/src/test" ]; then
                 if [ ! -d "example/android" ]; then
                     echo "FAILED: example/android missing, can't run tests."
@@ -55,6 +62,10 @@ for plugin_dir in */; do
                     failed_plugins+=("$plugin")
                 fi
                 cd ../..
+
+                if [ -d "$PLUGIN_DIR" ]; then
+                    cd ../
+                fi
             else
                 echo "SKIPPED: Android unit tests for $plugin don't exist. Skipping."
                 skipped_plugins+=("$plugin")
