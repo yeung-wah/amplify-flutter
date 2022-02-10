@@ -32,24 +32,28 @@ for plugin_dir in */; do
         android-test)
             echo "=== Running Android unit tests for $plugin ==="
 
-            ANDROID_PLUGIN_DIR=$(find . -type d -regex "./.*_[a-z]*_.*_android")
+            ANDROID_PLUGIN_DIR=$(echo "${plugin}_android" |  sed 's/_plugin//g')
+            RELATIVE_PATH_TO_PROJ_ROOT="../.."
+            PLUGIN_NAME=$plugin
 
             if [ -d "$ANDROID_PLUGIN_DIR" ]; then
                 cd $ANDROID_PLUGIN_DIR
+                RELATIVE_PATH_TO_PROJ_ROOT="../../.."
+                PLUGIN_NAME=$ANDROID_PLUGIN_DIR
             fi
 
             if [ -d "android/src/test" ]; then
                 if [ ! -d "example/android" ]; then
                     echo "FAILED: example/android missing, can't run tests."
-                    failed_plugins+=("$plugin")
+                    failed_plugins+=("$PLUGIN_NAME")
                     continue
                 fi
-                cp ../../.circleci/dummy_amplifyconfiguration.dart example/lib/amplifyconfiguration.dart
+    
+                cp ${RELATIVE_PATH_TO_PROJ_ROOT}/.circleci/dummy_amplifyconfiguration.dart example/lib/amplifyconfiguration.dart
                 cd example/android
-
-                if ./gradlew :"$plugin":testDebugUnitTest; then
-                    echo "PASSED: Android unit tests for $plugin passed."
-                    passed_plugins+=("$plugin")
+                if ./gradlew :"$PLUGIN_NAME":testDebugUnitTest; then
+                    echo "PASSED: Android unit tests for $PLUGIN_NAME passed."
+                    passed_plugins+=("$PLUGIN_NAME")
                     # if ./gradlew :"$plugin":testDebugUnitTestCoverage; then
                     #     echo "PASSED: Generating android unit tests coverage for $plugin passed."
                     #     passed_plugins+=("$plugin")
@@ -58,38 +62,46 @@ for plugin_dir in */; do
                     #     failed_plugins+=("$plugin")
                     # fi
                 else
-                    echo "FAILED: Android unit tests for $plugin failed."
-                    failed_plugins+=("$plugin")
+                    echo "FAILED: Android unit tests for $PLUGIN_NAME failed."
+                    failed_plugins+=("$PLUGIN_NAME")
                 fi
-                cd ../..
+                cd ${RELATIVE_PATH_TO_PROJ_ROOT}
 
-                if [ -d "$PLUGIN_DIR" ]; then
-                    cd ../
-                fi
             else
-                echo "SKIPPED: Android unit tests for $plugin don't exist. Skipping."
-                skipped_plugins+=("$plugin")
+                echo "SKIPPED: Android unit tests for $PLUGIN_NAME don't exist. Skipping."
+                skipped_plugins+=("$PLUGIN_NAME")
             fi
             ;;
         ios-test)
             echo "=== Running iOS unit tests for $plugin ==="
+
+            IOS_PLUGIN_DIR=$(echo "${plugin}_android" |  sed 's/_plugin//g')
+            RELATIVE_PATH_TO_PROJ_ROOT="../.."
+            PLUGIN_NAME=$plugin
+
+            if [ -d "$IOS_PLUGIN_DIR" ]; then
+                cd $IOS_PLUGIN_DIR
+                RELATIVE_PATH_TO_PROJ_ROOT="../../.."
+                PLUGIN_NAME=$IOS_PLUGIN_DIR
+            fi
+
             if [ -d "example/ios/unit_tests" ]; then
                 XCODEBUILD_DESTINATION="platform=iOS Simulator,name=iPhone 12"
-                cp ../../.circleci/dummy_amplifyconfiguration.dart example/lib/amplifyconfiguration.dart
+                cp ${RELATIVE_PATH_TO_PROJ_ROOT}/.circleci/dummy_amplifyconfiguration.dart example/lib/amplifyconfiguration.dart
                 cd example/ios
                 if xcodebuild test \
                         -workspace Runner.xcworkspace \
                         -scheme Runner \
                         -destination "$XCODEBUILD_DESTINATION" | xcpretty \
                         -r "junit" \
-                        -o "test-results/$plugin-xcodebuild-test.xml"; then
-                    echo "PASSED: iOS unit tests for $plugin passed."
-                    passed_plugins+=("$plugin")
+                        -o "test-results/$IOS_PLUGIN_DIR-xcodebuild-test.xml"; then
+                    echo "PASSED: iOS unit tests for $IOS_PLUGIN_DIR passed."
+                    passed_plugins+=("$IOS_PLUGIN_DIR")
                 else
-                    echo "FAILED: iOS unit tests for $plugin failed."
-                    failed_plugins+=("$plugin")
+                    echo "FAILED: iOS unit tests for $IOS_PLUGIN_DIR failed."
+                    failed_plugins+=("$IOS_PLUGIN_DIR")
                 fi
-                cd ../..
+                cd ${RELATIVE_PATH_TO_PROJ_ROOT}
             else
                 echo "SKIPPED: iOS unit tests for $plugin don't exist. Skipping."
                 skipped_plugins+=("$plugin")
