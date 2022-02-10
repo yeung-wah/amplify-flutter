@@ -6,6 +6,8 @@ passed_plugins=()
 failed_plugins=()
 skipped_plugins=()
 
+federated_plugins=("amplify_auth_cognito_plugin")
+
 set +e
 set -o pipefail
 
@@ -16,41 +18,42 @@ for plugin_dir in */; do
         flutter-test)
             echo "=== Running Flutter unit tests for $plugin ==="
 
-            APP_FACING_PACKAGE_DIR=$(echo "${plugin}" |  sed 's/_plugin//g')
-            RELATIVE_PATH_TO_PROJ_ROOT="../.."
+            PLUGIN_PACKAGE=false
             PLUGIN_NAME=$plugin
 
-            if [ -d "$APP_FACING_PACKAGE_DIR" ]; then
-                cd $APP_FACING_PACKAGE_DIR
-                RELATIVE_PATH_TO_PROJ_ROOT="../../.."
-                PLUGIN_NAME=$APP_FACING_PACKAGE_DIR
+            if [[ " ${federated_plugins[*]} " =~ " ${plugin} " ]]; then
+                PLUGIN_NAME=$(echo "${plugin}" |  sed 's/_plugin//g')
+                PLUGIN_PACKAGE=true
+                cd $PLUGIN_NAME
             fi
 
             if [ -d "test" ]; then
                 mkdir -p test-results
-                if flutter test --machine --coverage | tojunit --output "test-results/$plugin-flutter-test.xml"; then
-                    echo "PASSED: Flutter unit tests for $plugin passed."
-                    passed_plugins+=("$plugin")
+                if flutter test --machine --coverage | tojunit --output "test-results/$PLUGIN_NAME-flutter-test.xml"; then
+                    echo "PASSED: Flutter unit tests for $PLUGIN_NAME passed."
+                    passed_plugins+=("$PLUGIN_NAME")
                 else
-                    echo "FAILED: Flutter unit tests for $plugin failed."
-                    failed_plugins+=("$plugin")
+                    echo "FAILED: Flutter unit tests for $PLUGIN_NAME failed."
+                    failed_plugins+=("$PLUGIN_NAME")
                 fi
             else
-                echo "SKIPPED: Flutter unit tests for $plugin don't exist. Skipping."
-                skipped_plugins+=("$plugin")
+                echo "SKIPPED: Flutter unit tests for $PLUGIN_NAME don't exist. Skipping."
+                skipped_plugins+=("$PLUGIN_NAME")
             fi
+
+            if $PLUGIN_PACKAGE ; then
+                cd ..
             ;;
         android-test)
             echo "=== Running Android unit tests for $plugin ==="
 
-            ANDROID_PLUGIN_DIR=$(echo "${plugin}_android" |  sed 's/_plugin//g')
-            RELATIVE_PATH_TO_PROJ_ROOT="../.."
             PLUGIN_NAME=$plugin
+            RELATIVE_PATH_TO_PROJ_ROOT="../.."
 
-            if [ -d "$ANDROID_PLUGIN_DIR" ]; then
-                cd $ANDROID_PLUGIN_DIR
+            if [[ " ${federated_plugins[*]} " =~ " ${plugin} " ]]; then
+                PLUGIN_NAME=$(echo "${plugin}_android" |  sed 's/_plugin//g')
                 RELATIVE_PATH_TO_PROJ_ROOT="../../.."
-                PLUGIN_NAME=$ANDROID_PLUGIN_DIR
+                cd $PLUGIN_NAME
             fi
 
             if [ -d "android/src/test" ]; then
