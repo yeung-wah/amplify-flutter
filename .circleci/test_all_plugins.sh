@@ -43,6 +43,7 @@ for plugin_dir in */; do
 
             if $PLUGIN_PACKAGE ; then
                 cd ..
+            fi
             ;;
         android-test)
             echo "=== Running Android unit tests for $plugin ==="
@@ -117,8 +118,8 @@ for plugin_dir in */; do
                 fi
                 cd ${RELATIVE_PATH_TO_PROJ_ROOT}
             else
-                echo "SKIPPED: iOS unit tests for $plugin don't exist. Skipping."
-                skipped_plugins+=("$plugin")
+                echo "SKIPPED: iOS unit tests for $PLUGIN_NAME don't exist. Skipping."
+                skipped_plugins+=("$PLUGIN_NAME")
             fi
             ;;
     esac
