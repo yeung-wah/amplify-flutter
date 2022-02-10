@@ -6,8 +6,6 @@ passed_plugins=()
 failed_plugins=()
 skipped_plugins=()
 
-federated_plugins=("amplify_auth_cognito_plugin")
-
 set +e
 set -o pipefail
 
@@ -18,13 +16,14 @@ for plugin_dir in */; do
         flutter-test)
             echo "=== Running Flutter unit tests for $plugin ==="
 
+            APP_FACING_PACKAGE_DIR=$(echo "${plugin}" |  sed 's/_plugin//g')
             PLUGIN_PACKAGE=false
             PLUGIN_NAME=$plugin
 
-            if [[ " ${federated_plugins[*]} " =~ " ${plugin} " ]]; then
-                PLUGIN_NAME=$(echo "${plugin}" |  sed 's/_plugin//g')
+            if [ -d "$APP_FACING_PACKAGE_DIR" ]; then
+                cd $APP_FACING_PACKAGE_DIR
+                PLUGIN_NAME=$APP_FACING_PACKAGE_DIR
                 PLUGIN_PACKAGE=true
-                cd $PLUGIN_NAME
             fi
 
             if [ -d "test" ]; then
@@ -48,13 +47,14 @@ for plugin_dir in */; do
         android-test)
             echo "=== Running Android unit tests for $plugin ==="
 
-            PLUGIN_NAME=$plugin
+            ANDROID_PLUGIN_DIR=$(echo "${plugin}_android" |  sed 's/_plugin//g')
             RELATIVE_PATH_TO_PROJ_ROOT="../.."
+            PLUGIN_NAME=$plugin
 
-            if [[ " ${federated_plugins[*]} " =~ " ${plugin} " ]]; then
-                PLUGIN_NAME=$(echo "${plugin}_android" |  sed 's/_plugin//g')
+            if [ -d "$ANDROID_PLUGIN_DIR" ]; then
+                cd $ANDROID_PLUGIN_DIR
                 RELATIVE_PATH_TO_PROJ_ROOT="../../.."
-                cd $PLUGIN_NAME
+                PLUGIN_NAME=$ANDROID_PLUGIN_DIR
             fi
 
             if [ -d "android/src/test" ]; then
@@ -118,8 +118,8 @@ for plugin_dir in */; do
                 fi
                 cd ${RELATIVE_PATH_TO_PROJ_ROOT}
             else
-                echo "SKIPPED: iOS unit tests for $PLUGIN_NAME don't exist. Skipping."
-                skipped_plugins+=("$PLUGIN_NAME")
+                echo "SKIPPED: iOS unit tests for $plugin don't exist. Skipping."
+                skipped_plugins+=("$plugin")
             fi
             ;;
     esac
