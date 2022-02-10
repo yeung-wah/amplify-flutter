@@ -49,6 +49,7 @@ commands:
 
 jobs:
   format_flutter:
+  parallelism: 4
     executor: docker-executor
     steps:
       - install_flutter
@@ -58,6 +59,7 @@ jobs:
 
   analyze_flutter:
     executor: docker-executor
+    parallelism: 4
     steps:
       - install_flutter
       - checkout
@@ -68,6 +70,7 @@ jobs:
 
   unit_test_flutter:
     executor: docker-executor
+    parallelism: 4
     steps:
       - install_flutter
       - checkout
@@ -98,6 +101,7 @@ jobs:
 
   unit_test_ios:
     executor: macos-executor
+    parallelism: 4
     steps:
       - install_flutter
       - checkout
@@ -132,6 +136,7 @@ jobs:
 
   unit_test_android:
     executor: docker-executor
+    parallelism: 4
     environment:
       _JAVA_OPTIONS: -XX:MaxRAMPercentage=80.0
       GRADLE_OPTS: -Xmx1536m -Xms768m -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.daemon=false
