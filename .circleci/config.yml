@@ -49,7 +49,7 @@ commands:
 
 jobs:
   format_flutter:
-  parallelism: 4
+    parallelism: 4
     executor: docker-executor
     steps:
       - install_flutter
