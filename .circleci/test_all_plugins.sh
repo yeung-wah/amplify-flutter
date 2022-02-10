@@ -15,6 +15,17 @@ for plugin_dir in */; do
     case $1 in
         flutter-test)
             echo "=== Running Flutter unit tests for $plugin ==="
+
+            APP_FACING_PACKAGE_DIR=$(echo "${plugin}" |  sed 's/_plugin//g')
+            RELATIVE_PATH_TO_PROJ_ROOT="../.."
+            PLUGIN_NAME=$plugin
+
+            if [ -d "$APP_FACING_PACKAGE_DIR" ]; then
+                cd $APP_FACING_PACKAGE_DIR
+                RELATIVE_PATH_TO_PROJ_ROOT="../../.."
+                PLUGIN_NAME=$APP_FACING_PACKAGE_DIR
+            fi
+
             if [ -d "test" ]; then
                 mkdir -p test-results
                 if flutter test --machine --coverage | tojunit --output "test-results/$plugin-flutter-test.xml"; then
@@ -75,7 +86,7 @@ for plugin_dir in */; do
         ios-test)
             echo "=== Running iOS unit tests for $plugin ==="
 
-            IOS_PLUGIN_DIR=$(echo "${plugin}_android" |  sed 's/_plugin//g')
+            IOS_PLUGIN_DIR=$(echo "${plugin}_ios" |  sed 's/_plugin//g')
             RELATIVE_PATH_TO_PROJ_ROOT="../.."
             PLUGIN_NAME=$plugin
 
