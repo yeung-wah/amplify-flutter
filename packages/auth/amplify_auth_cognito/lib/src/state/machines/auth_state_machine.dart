@@ -37,7 +37,15 @@ class AuthStateMachine extends AuthStateMachineBase {
   /// The AWS credentials provider, using cached credentials.
   late final AWSCredentialsProvider credentialsProvider =
       InlineCredentialsProvider(() async {
-    throw UnimplementedError();
+    // Get the latest credentials from storage.
+    dispatch(const FetchAuthSessionEvent.fetch());
+    final fetchState =
+        await expect(FetchAuthSessionStateMachine.type).getLatestResult();
+    final fetchedCredentials = fetchState?.session.credentials;
+    if (fetchedCredentials == null) {
+      throw const InvalidStateException('Could not retrieve AWS credentials');
+    }
+    return fetchedCredentials;
   });
 
   @override

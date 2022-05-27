@@ -25,6 +25,7 @@ import 'state.dart';
 final stateMachineBuilders = <StateMachineToken, StateMachineBuilder>{
   AuthStateMachine.type: AuthStateMachine.new,
   CredentialStoreStateMachine.type: CredentialStoreStateMachine.new,
+  FetchAuthSessionStateMachine.type: FetchAuthSessionStateMachine.new,
 };
 
 /// Default defaultDependencies for [CognitoAuthStateMachine].
@@ -52,6 +53,8 @@ class CognitoAuthStateMachine extends StateMachineManager {
         return getOrCreate(AuthStateMachine.type).add(event);
       } else if (event is CredentialStoreEvent) {
         return getOrCreate(CredentialStoreStateMachine.type).add(event);
+      } else if (event is FetchAuthSessionEvent) {
+        return getOrCreate(FetchAuthSessionStateMachine.type).add(event);
       }
       throw StateError('Unhandled event: $event');
     } finally {
