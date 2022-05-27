@@ -1,5 +1,10 @@
 version: 2.1
 
+orbs:
+  macos: circleci/macos@2
+  android: circleci/android@2.0.0
+  flutter-orb: circleci/flutter@1.0.1
+
 executors:
   docker-executor:
     docker:
@@ -50,6 +55,23 @@ commands:
           name: Install tuneup
           command: |
             flutter pub global activate tuneup
+
+  setup-amplify-flutter-project:
+    description: Setup Amplify project
+    steps:
+      - run:
+          name: Setting up dependences
+          command: cd amplified_todo && flutter pub add amplify_flutter && flutter pub add amplify_datastore
+      - run:
+          name: Adding integration_test package
+          command: 'cd amplified_todo && sed -i -e "s/dev_dependencies:/dev_dependencies:\n  integration_test:\n    sdk: flutter/" ./pubspec.yaml && cat ./pubspec.yaml'
+      - run:
+          name: Update outdated dependences
+          command: cd amplified_todo && flutter pub upgrade --major-versions
+      - run:
+          name: Adding Amplify code
+          command: mv canaries/dummy_amplifyconfiguration.dart canaries/amplifyconfiguration.dart && cp canaries/amplifyconfiguration.dart amplified_todo/lib && cp canaries/main.dart amplified_todo/lib && cp -r canaries/integration_test amplified_todo/integration_test
+
 jobs:
   format_flutter:
     executor: docker-executor
@@ -190,6 +212,55 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
+  getting_started_smoke_test_android:
+    executor:
+      name: android/android-machine
+      resource-class: xlarge
+      tag: 2022.03.1
+    steps:
+      - checkout
+      - install_flutter
+      - run:
+          name: Setting up project
+          command: flutter create amplified_todo
+      - run:
+          name: Update Android version
+          command: cd amplified_todo && sed -i -e "s/minSdkVersion .*/minSdkVersion 21/" ./android/app/build.gradle && cat ./android/app/build.gradle
+      - setup-amplify-flutter-project
+      - flutter-orb/install_android_gradle:
+          app-dir: ./amplified_todo
+      - android/create-avd:
+          avd-name: flutter
+          install: true
+          system-image: system-images;android-29;default;x86
+      - android/start-emulator:
+          avd-name: flutter
+          post-emulator-launch-assemble-command: ls -lrt
+          restore-gradle-cache-find-args: ./amplified_todo/android -name 'build.gradle'
+      - run:
+          name: Run Flutter Tests
+          command: cd amplified_todo && flutter test integration_test
+
+  getting_started_smoke_test_ios:
+    executor: macos-executor
+    working_directory: ~/flutter-canaries
+    steps:
+      - checkout
+      - macos/preboot-simulator:
+          device: iPhone 13
+          version: "15.0"
+      - install_flutter
+      - run:
+          name: Setting up project
+          command: flutter create amplified_todo
+      - setup-amplify-flutter-project
+      - run:
+          name: Update ios version
+          command: cd amplified_todo && sed -i -e "s/# platform :ios, '9.0'/platform :ios, '13.0'/" ./ios/Podfile
+      - run:
+          name: Run Flutter Tests
+          command: cd amplified_todo && flutter test integration_test
+
 releasable_branches: &releasable_branches
   branches:
     only:
@@ -254,3 +325,7 @@ workflows:
                   "amplify_datastore",
                   "amplify_flutter",
                 ]
+  getting_started_smoke_tests:
+    jobs:
+      - getting_started_smoke_test_android
+      - getting_started_smoke_test_ios
