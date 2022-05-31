@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'amplifyconfiguration.dart';
 
 void main() {
