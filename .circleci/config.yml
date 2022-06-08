@@ -114,8 +114,7 @@ orbs:
           - install-flutter
           - run:
               name: Setting up project
-              command: flutter create amplified_todo
-              working_directory: ~/flutter-canaries/
+              command: cd ../ && flutter create amplified_todo
           - run:
               name: Setting up project
               command: pwd && ls -lrt
@@ -155,7 +154,7 @@ orbs:
           - install-flutter
           - run:
               name: Setting up project
-              command: flutter create amplified_todo
+              command: cd ../ && flutter create amplified_todo
           - setup-amplify-flutter-project
           - run:
               name: Update ios version
