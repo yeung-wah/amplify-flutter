@@ -108,6 +108,9 @@ orbs:
         steps:
           - checkout:
               path: ~/flutter-canaries
+          - run:
+              name: Setting up project
+              command: pwd
           - install-flutter
           - run:
               name: Setting up project
