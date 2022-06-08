@@ -85,18 +85,18 @@ orbs:
         steps:
           - run-with-retry:
               label: Setting up dependences
-              command: cd amplified_todo && flutter pub add amplify_flutter && flutter pub add amplify_datastore
+              command: flutter pub add amplify_flutter && flutter pub add amplify_datastore
               no_output_timeout: 20m
           - run:
               name: Adding integration_test package
-              command: 'cd amplified_todo && sed -i -e "s/dev_dependencies:/dev_dependencies:\n  integration_test:\n    sdk: flutter/" ./pubspec.yaml && cat ./pubspec.yaml'
+              command: 'sed -i -e "s/dev_dependencies:/dev_dependencies:\n  integration_test:\n    sdk: flutter/" ./pubspec.yaml && cat ./pubspec.yaml'
           - run:
               name: Update outdated dependences
-              command: cd amplified_todo && flutter pub upgrade --major-versions
+              command: flutter pub upgrade --major-versions
           - run:
               name: Adding Amplify code
               command: mv canaries/dummy_amplifyconfiguration.dart canaries/amplifyconfiguration.dart && cp canaries/amplifyconfiguration.dart amplified_todo/lib && cp canaries/main.dart amplified_todo/lib && cp -r canaries/integration_test amplified_todo/integration_test
-
+              working_directory: ~/flutter-canaries/
 
     jobs:
       flutter-android:
@@ -104,18 +104,20 @@ orbs:
           name: android/android-machine
           resource-class: large
           tag: 2021.10.1
+        working_directory: ~/flutter-canaries/amplified_todo
         steps:
-          - checkout
+          - checkout:
+              path: ~/flutter-canaries
           - install-flutter
           - run:
               name: Setting up project
               command: flutter create amplified_todo
           - run:
               name: Update Android version
-              command: cd amplified_todo && sed -i -e "s/minSdkVersion .*/minSdkVersion 21/" ./android/app/build.gradle && cat ./android/app/build.gradle
+              command: sed -i -e "s/minSdkVersion .*/minSdkVersion 21/" ./android/app/build.gradle && cat ./android/app/build.gradle
           - setup-amplify-flutter-project
           - flutter-orb/install_android_gradle:
-              app-dir: ./amplified_todo
+              app-dir: ./
           - android/create-avd:
               avd-name: flutter
               install: true
@@ -123,21 +125,23 @@ orbs:
           - android/start-emulator:
               avd-name: flutter
               post-emulator-launch-assemble-command: ls -lrt
-              restore-gradle-cache-find-args: ./amplified_todo/android -name 'build.gradle'
+              restore-gradle-cache-find-args: ./android -name 'build.gradle'
           - run-with-retry:
               label: Run Flutter Build
-              command: cd amplified_todo && flutter build apk --debug -v
+              command: flutter build apk --debug -v
               no_output_timeout: 20m
           - run-with-retry:
               label: Run Flutter Tests
-              command: cd amplified_todo && flutter test integration_test -v
+              command: flutter test integration_test -v
               no_output_timeout: 1h
               retry-count: 5
 
       flutter-ios:
         executor: mac-executor
+        working_directory: ~/flutter-canaries/amplified_todo
         steps:
-          - checkout
+          - checkout:
+              path: ~/flutter-canaries
           - macos/preboot-simulator:
               device: iPhone 13
               version: "15.4"
@@ -148,14 +152,14 @@ orbs:
           - setup-amplify-flutter-project
           - run:
               name: Update ios version
-              command: cd amplified_todo && sed -i -e "s/# platform :ios, '9.0'/platform :ios, '13.0'/" ./ios/Podfile
+              command: sed -i -e "s/# platform :ios, '9.0'/platform :ios, '13.0'/" ./ios/Podfile
           - run-with-retry:
               label: Run Flutter Build
-              command: cd amplified_todo && flutter build ios --debug -v --simulator
+              command: flutter build ios --debug -v --simulator
               no_output_timeout: 20m
           - run-with-retry:
               label: Run Flutter Tests
-              command: cd amplified_todo && flutter test integration_test -v
+              command: flutter test integration_test -v
               no_output_timeout: 20m
 
 
