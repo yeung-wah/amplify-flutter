@@ -111,7 +111,7 @@ orbs:
           - install-flutter
           - run:
               name: Setting up project
-              command: flutter create amplified_todo
+              command: cd ../ && flutter create amplified_todo
           - run:
               name: Update Android version
               command: sed -i -e "s/minSdkVersion .*/minSdkVersion 21/" ./android/app/build.gradle && cat ./android/app/build.gradle
