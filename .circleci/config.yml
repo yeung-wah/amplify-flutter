@@ -91,8 +91,9 @@ orbs:
               name: Adding integration_test package
               command: 'sed -i -e "s/dev_dependencies:/dev_dependencies:\n  integration_test:\n    sdk: flutter/" ./pubspec.yaml && cat ./pubspec.yaml'
           - run:
-              name: Adding integration_test package
-              command: 'sed -i -e "s/sdk: \".*/sdk: \">=2.12.0 <3.0.0\"/" ./pubspec.yaml && cat ./pubspec.yaml'
+              name: Updating sdk version
+              command: |
+                sed -i -e "s/sdk: '.*/sdk: '>=2.12.0 <3.0.0'/" ./pubspec.yaml && cat ./pubspec.yaml
           - run:
               name: Update outdated dependences
               command: flutter pub upgrade --major-versions
