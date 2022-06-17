@@ -93,7 +93,11 @@ orbs:
           - run:
               name: Updating sdk version
               command: |
-                sed -i -e "s/sdk: \".*/sdk: ">=2.12.0 <3.0.0"/" ./pubspec.yaml && cat ./pubspec.yaml | sed -i -e "s/sdk: '.*/sdk: ">=2.12.0 <3.0.0"/" ./pubspec.yaml && cat ./pubspec.yaml
+                sed -i -e "s/sdk: \".*/sdk: ">=2.12.0 <3.0.0"/" ./pubspec.yaml && cat ./pubspec.yaml
+          - run:
+              name: Updating sdk version2
+              command: |
+                sed -i -e "s/sdk: '.*/sdk: ">=2.12.0 <3.0.0"/" ./pubspec.yaml && cat ./pubspec.yaml
           - run:
               name: Update outdated dependences
               command: flutter pub upgrade --major-versions
